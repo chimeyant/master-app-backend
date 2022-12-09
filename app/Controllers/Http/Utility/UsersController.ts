@@ -10,9 +10,10 @@ import Drive from "@ioc:Adonis/Core/Drive"
 
 export default class UsersController {
   public async index({request,response}: HttpContextContract) {
-    const {page, itemsPerPage}= request.only(['page','itemsPerPage'])
+    //const {page, itemsPerPage}= request.only(['page','itemsPerPage'])
 
-    const users = await User.query().withScopes((scopes)=> scopes.filterOn(request)).paginate(page,itemsPerPage)
+    //const users = await User.query().withScopes((scopes)=> scopes.filterOn(request)).paginate(page,itemsPerPage)
+    const users = await User.query().select('id','name','email').whereNot("authent",'superadmin').orderBy("id",'asc')
 
     return users;
   }
@@ -33,14 +34,20 @@ export default class UsersController {
       user.status = status
       await user.save()
 
-      return response.json({
-        status:true,
-        message:"Tambah pengguna berhasil"
+      return response.status(200).json({
+        succes:true,
+        code:200,
+        response:{
+          message:"Proses tambah data berhasil",
+          data: user
+        }
       })
     } catch (error) {
-      return response.json({
-        status: false,
-        message:"Opps..., terjadi kesalahan "+ error
+      return response.status(500).json({
+        success:false,
+        code:500,
+        response:{},
+        errors:error
       })
     }
 
@@ -72,14 +79,20 @@ export default class UsersController {
       }
       await user?.save()
 
-      return response.json({
-        status:true,
-        message:"Proses ubah data berhasil"
+      return response.status(200).json({
+        succes:true,
+        code:200,
+        response:{
+          message:"Proses ubah data pengguna berhasil",
+          data: user
+        }
       })
     } catch (error) {
-      return response.json({
-        status:false,
-        message:"Opps..., terjadi kesalahan "+ error
+      return response.status(500).json({
+        success:false,
+        code:500,
+        response:{},
+        errors:error
       })
     }
   }
@@ -89,14 +102,23 @@ export default class UsersController {
     try {
       const user = await User.findBy('id',id)
       await user?.delete()
-      return response.json({
-        status:true,
-        message:"Proses hapus data berhasil..."
+      return response.status(200).json({
+        success:true,
+        code:200,
+        response:{
+          message:"Proses hapus data berhasil...!",
+          data: {
+            id:id
+          }
+        },
+        errors:[],
       })
     } catch (error) {
-      return response.json({
-        status:false,
-        message:"Opps..., terjadi kesalahan "+ error
+      return response.status(500).json({
+        success:false,
+        code:500,
+        response:{},
+        errors:error
       })
     }
   }
